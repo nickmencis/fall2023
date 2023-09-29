@@ -1,10 +1,8 @@
-"""
-AUTHORS: Nick Mencis, Sydney Andrews, Sitara Brent
-CREATED: 20 September 2023
-S-STEM
-FALL 2023
-CODING: UTF-8
-"""
+# AUTHORS: Nick Mencis, Sydney Andrews, Sitara Brent
+# CREATED: 20 September 2023
+# S-STEM
+# FALL 2023
+# CODING: UTF-8
 
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -14,25 +12,27 @@ from sklearn.metrics import mean_squared_error
 # 1. Load the dataset
 data = pd.read_csv('total_stars.csv')
 
-# Split the data into training and testing sets
+# 2. Create a linear regression model and predict temperatures for the whole dataset
 X = data[['Mass', 'Radius', 'Luminosity']]
 y = data['Temperature']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Create a linear regression model
 model = LinearRegression()
-model.fit(X_train, y_train)
-
-# Predict the temperatures for the test set
-y_pred = model.predict(X_test)
-
-# Calculate the RMSE for evaluation
-rmse = mean_squared_error(y_test, y_pred, squared=False)
-print(f'Root Mean Squared Error: {rmse}')
-
-# Predict temperatures for the whole dataset
+model.fit(X, y)
 data['Predicted_Temperature'] = model.predict(X)
 
+# 3. Update the original 'total_stars.csv' file with the Predicted_Temperature
+data.to_csv('total_stars.csv', index=False)
+
+# 4. Split the data into training and testing sets using the Predicted_Temperature
+X_train, X_test, y_train, y_test = train_test_split(X, data['Predicted_Temperature'], test_size=0.2, random_state=42)
+
+# 5. Retrain the model on the training data
+model.fit(X_train, y_train)
+
+# Predict the temperatures for the test set and calculate the RMSE
+y_pred = model.predict(X_test)
+rmse = mean_squared_error(y_test, y_pred, squared=False)
+print(f'Root Mean Squared Error: {rmse}')
 # 2. Classify based on the temperature
 def classify_spectral_type(temp):
     if temp > 30000:
